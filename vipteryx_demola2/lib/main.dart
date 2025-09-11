@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'settings_page.dart';
+import 'home_map_page.dart';
+import 'profile_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,62 +32,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
-  static const LatLng _center = LatLng(65.02147, 25.45964); // Kuusisaari
 
   static final List<Widget> _pages = <Widget>[
-    // Settings Page
-    Center(child: Text('Settings Page', style: TextStyle(fontSize: 24))),
-    // Home (Map) Page
-    Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Explore the Festival Grounds',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16.0),
-              child: FlutterMap(
-                options: MapOptions(
-                  center: _center,
-                  zoom: 15,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
-                    userAgentPackageName: 'com.example.vipteryx_demola2',
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        width: 40.0,
-                        height: 40.0,
-                        point: _center,
-                        child: Icon(Icons.location_on, color: Colors.red, size: 40),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-    // Profile Page
-    Center(child: Text('Profile Page', style: TextStyle(fontSize: 24))),
+    SettingsPage(),
+    HomeMapPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
