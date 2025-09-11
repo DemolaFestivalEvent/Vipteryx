@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'settings_page.dart';
-import 'home_map_page.dart';
+import 'home_page.dart';
+import 'map_page.dart';
 import 'profile_page.dart';
 
 void main() {
@@ -34,9 +34,9 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
 
   static final List<Widget> _pages = <Widget>[
-    SettingsPage(),
-    HomeMapPage(),
-    ProfilePage(),
+    HomePage(),      // Home tab
+    MapPage(),       // Map tab
+    ProfilePage(),   // Profile tab
   ];
 
   void _onItemTapped(int index) {
@@ -76,12 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.home), // Changed from settings to home
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.map), // Changed from home to map
+            label: 'Map',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
