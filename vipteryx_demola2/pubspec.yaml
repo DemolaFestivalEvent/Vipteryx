@@ -38,6 +38,7 @@ dependencies:
   latlong2: ^0.9.0
 
   google_maps_flutter: ^2.6.0
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:

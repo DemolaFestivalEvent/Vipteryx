@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class HomeMapPage extends StatelessWidget {
-  const HomeMapPage({super.key});
+class MapPage extends StatelessWidget {
+  const MapPage({super.key});
 
   static const LatLng _center = LatLng(65.02147, 25.45964); // Kuusisaari
 
