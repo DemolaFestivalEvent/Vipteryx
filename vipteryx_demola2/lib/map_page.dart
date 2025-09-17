@@ -104,9 +104,8 @@ class _MapPageState extends State<MapPage> {
                         initialZoom: 17,
                         minZoom: 10,
                         maxZoom: 30,
-                /*        cameraConstraint:
+                        cameraConstraint:
                             CameraConstraint.contain(bounds: _festivalBounds),
-                            */
                       ),
                       
                       children: [
