@@ -25,7 +25,7 @@ class ProfilePage extends StatelessWidget {
                     radius: 48,
                     backgroundColor: cardColor,
                     child: Icon(Icons.person, size: 60, color: iconColor),
-                    
+
                   ),
                   Positioned(
                     bottom: 4,
@@ -56,6 +56,12 @@ class ProfilePage extends StatelessWidget {
             icon: Icons.person,
             text: "Personal Information",
             iconColor: iconColor,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PersonalInfoPage()),
+              );
+            },
           ),
           _ProfileCard(
             color: cardColor,
@@ -115,12 +121,14 @@ class _ProfileCard extends StatelessWidget {
   final IconData icon;
   final String text;
   final Color iconColor;
+  final VoidCallback? onTap;
 
   const _ProfileCard({
     required this.color,
     required this.icon,
     required this.text,
     required this.iconColor,
+    this.onTap,
   });
 
   @override
@@ -136,7 +144,24 @@ class _ProfileCard extends StatelessWidget {
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
         ),
         trailing: const Icon(Icons.chevron_right, color: Colors.white38),
-        onTap: () {},
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class PersonalInfoPage extends StatelessWidget {
+  const PersonalInfoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Personal Information')),
+      body: Center(
+        child: Text(
+          'This is the Personal Information page.',
+          style: TextStyle(fontSize: 20),
+        ),
       ),
     );
   }
