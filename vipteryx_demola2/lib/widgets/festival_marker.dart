@@ -76,7 +76,7 @@ class _FestivalMarkerState extends State<FestivalMarker>
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(top: 2),
               decoration: BoxDecoration(
-                color: Colors.black87,
+                color: const Color.fromARGB(199, 0, 0, 0),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
