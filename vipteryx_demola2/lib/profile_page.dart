@@ -25,6 +25,7 @@ class ProfilePage extends StatelessWidget {
                     radius: 48,
                     backgroundColor: cardColor,
                     child: Icon(Icons.person, size: 60, color: iconColor),
+                    
                   ),
                   Positioned(
                     bottom: 4,
