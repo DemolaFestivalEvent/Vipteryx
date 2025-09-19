@@ -10,28 +10,54 @@ import '../services/navigation_service.dart';
 import '../widgets/festival_marker.dart';
 import '../widgets/friend_marker.dart';
 import '../widgets/user_marker.dart';
+import '../widgets/stage_card.dart';
+import '../widgets/food_vendor_list.dart';
 
-
+import '../models/food_vendor.dart';
 
 
 class MapPage extends StatefulWidget {
   const MapPage({Key? key}) : super(key: key);
 
   static const LatLng _center = LatLng(65.02147, 25.45964);
-
+  
   @override
   State<MapPage> createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
+
   final MapController _mapController = MapController();
+
   LatLng? _userLocation;
+  String? _selectedStage;
+  bool _showFoodOptions = false;
+
   final LatLngBounds _festivalBounds = LatLngBounds(
     LatLng(65.019231, 25.452068), // southwest
     LatLng(65.024160, 25.464593), // northeast
   );
 
-  String? _selectedStage;
+  final List<FoodVendor> _foodVendors = [
+  FoodVendor(
+    id: "pizza",
+    name: "Festival Pizza",
+    location: LatLng(65.0219, 25.4601),
+    type: "Food",
+  ),
+  FoodVendor(
+    id: "drinks",
+    name: "Chill Bar",
+    location: LatLng(65.0221, 25.4590),
+    type: "Drinks",
+  ),
+  FoodVendor(
+    id: "tacos",
+    name: "Taco Truck",
+    location: LatLng(65.0216, 25.4612),
+    type: "Food",
+  ),
+];
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +127,16 @@ class _MapPageState extends State<MapPage> {
                       mapController: _mapController,
                       options: MapOptions(
                         initialCenter: MapPage._center,
-                        initialZoom: 17,
+                        initialZoom: 18,
                         minZoom: 10,
                         maxZoom: 30,
-                        cameraConstraint:
-                            CameraConstraint.contain(bounds: _festivalBounds),
+                        cameraConstraint:CameraConstraint.contain(bounds: _festivalBounds),
+                          onTap: (_, __) {
+                          setState(() {
+                            _selectedStage = null;
+                            _showFoodOptions = false;
+                          });
+                        },
                       ),
                       
                       children: [
@@ -120,8 +151,6 @@ class _MapPageState extends State<MapPage> {
                             if (_userLocation != null)
                               Marker(
                                 point: _userLocation!,
-                                width: 40,
-                                height: 40,
                                 child: const UserMarker(),
                               ),
                             Marker(
@@ -135,6 +164,7 @@ class _MapPageState extends State<MapPage> {
                                 icon: Icons.music_note,
                                 onTap: () {
                                   setState(() => _selectedStage = "Main Stage");
+                                  _showFoodOptions = false;
                                 },
                               ),
                             ),
@@ -148,6 +178,12 @@ class _MapPageState extends State<MapPage> {
                                 },
                               ),
                             ),
+                           ..._foodVendors.map((vendor) => Marker(
+                                point: vendor.location,
+                                width: 60,
+                                height: 60,
+                                child: Icon(Icons.restaurant, color: Colors.orange, size: 30),
+                              )),
                           ],
                         ),
                       ],
@@ -163,17 +199,22 @@ class _MapPageState extends State<MapPage> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      onPressed: () {},
-                      icon: const Icon(Icons.flash_on, size: 16),
-                      label: const Text("Quick Order"),
                     ),
+                    onPressed: () {
+                    setState(() {
+                      _showFoodOptions = !_showFoodOptions;
+                      _selectedStage = null; 
+                    });
+                  },
+                    icon: const Icon(Icons.flash_on, size: 16),
+                    label: const Text("Quick Order"),
+                  ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -192,67 +233,36 @@ class _MapPageState extends State<MapPage> {
                 ],
               ),
 
-              //  Selected stage info card
-              if (_selectedStage != null) ...[
-                const SizedBox(height: 12),
-                Card(
-                  color: cardColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _selectedStage!,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          "Now playing: Electronic Dance Vibes • Next: Indie Rock Session",
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.purple,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text("Get Directions"), 
-                            ),
-                            const SizedBox(width: 8),
-                            OutlinedButton(
-                              onPressed: () {},
-                              style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              child: const Text("Add to Schedule"),
-                            ),
-                          ],
+              // STAGE AND FOOD CARDS
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                );
+              },
+              child: _selectedStage != null
+                  ? StageCard(
+                      stageName: _selectedStage!,
+                      onDirections: () {},
+                      onSchedule: () {},
+                    )
+                  : _showFoodOptions
+                      ? FoodVendorList(
+                          vendors: _foodVendors,
+                          onOrder: (vendor) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Ordering from ${vendor.name}")),
+                            );
+                          },
                         )
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ],
+                      : const SizedBox.shrink(),
+            ),
+],
           ),
         ),
       ),
