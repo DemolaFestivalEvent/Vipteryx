@@ -15,9 +15,8 @@ import '../widgets/food_vendor_list.dart';
 
 import '../models/food_vendor.dart';
 
-
 class MapPage extends StatefulWidget {
-  const MapPage({Key? key}) : super(key: key);
+  const MapPage({super.key});
 
   static const LatLng _center = LatLng(65.02147, 25.45964);
   
@@ -25,8 +24,14 @@ class MapPage extends StatefulWidget {
   State<MapPage> createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _SearchResult {
+  final String name;
+  final LatLng location;
+  final String type;
+  _SearchResult(this.name, this.location, this.type);
+}
 
+class _MapPageState extends State<MapPage> {
   final MapController _mapController = MapController();
 
   LatLng? _userLocation;
@@ -59,6 +64,35 @@ class _MapPageState extends State<MapPage> {
   ),
 ];
 
+  final TextEditingController _searchController = TextEditingController();
+  List<_SearchResult> _searchResults = [];
+
+  // Add toilets and stage to searchable locations
+  final List<_SearchResult> _allLocations = [
+    _SearchResult("Main Stage", LatLng(65.0215, 25.4598), "Stage"),
+    _SearchResult("Festival Pizza", LatLng(65.0219, 25.4601), "Food"),
+    _SearchResult("Chill Bar", LatLng(65.0221, 25.4590), "Drinks"),
+    _SearchResult("Taco Truck", LatLng(65.0216, 25.4612), "Food"),
+    _SearchResult("Toilet 1", LatLng(65.0225, 25.4585), "Toilet"),
+    _SearchResult("Toilet 2", LatLng(65.0205, 25.4615), "Toilet"),
+  ];
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _searchResults = _allLocations
+          .where((loc) => loc.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void _onSearchSelect(_SearchResult result) {
+    _mapController.move(result.location, 19);
+    setState(() {
+      _searchController.text = result.name;
+      _searchResults = [];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color background = const Color(0xFF181828);
@@ -74,7 +108,7 @@ class _MapPageState extends State<MapPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              //  Header row
+              // Header row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -114,7 +148,7 @@ class _MapPageState extends State<MapPage> {
               ),
               const SizedBox(height: 12),
 
-              //  Map inside a card
+              // Map inside a card with search bar overlay
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
@@ -123,68 +157,132 @@ class _MapPageState extends State<MapPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        initialCenter: MapPage._center,
-                        initialZoom: 18,
-                        minZoom: 10,
-                        maxZoom: 30,
-                        cameraConstraint:CameraConstraint.contain(bounds: _festivalBounds),
-                          onTap: (_, __) {
-                          setState(() {
-                            _selectedStage = null;
-                            _showFoodOptions = false;
-                          });
-                        },
-                      ),
-                      
+                    child: Stack(
                       children: [
-                        TileLayer(
-                          urlTemplate:
-                              'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          subdomains: const ['a', 'b', 'c'],
-                          userAgentPackageName: 'com.example.yourapp',
-                        ),
-                        MarkerLayer(
-                          markers: [
-                            if (_userLocation != null)
-                              Marker(
-                                point: _userLocation!,
-                                child: const UserMarker(),
-                              ),
-                            Marker(
-                              width: 100,
-                              height: 100,
-                              point: const LatLng(65.0215, 25.4598),
-                              child: FestivalMarker(
-                                title: "Main Stage",
-                                crowdLevel: "High",
-                                color: Colors.red,
-                                icon: Icons.music_note,
-                                onTap: () {
-                                  setState(() => _selectedStage = "Main Stage");
-                                  _showFoodOptions = false;
-                                },
-                              ),
+                        FlutterMap(
+                          mapController: _mapController,
+                          options: MapOptions(
+                            initialCenter: MapPage._center,
+                            initialZoom: 18,
+                            minZoom: 10,
+                            maxZoom: 30,
+                            cameraConstraint: CameraConstraint.contain(bounds: _festivalBounds),
+                            onTap: (_, __) {
+                              setState(() {
+                                _selectedStage = null;
+                                _showFoodOptions = false;
+                              });
+                            },
+                          ),
+                          children: [
+                            TileLayer(
+                              urlTemplate:
+                                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                              subdomains: const ['a', 'b', 'c'],
+                              userAgentPackageName: 'com.example.yourapp',
                             ),
-                            Marker(
-                              width: 80,
-                              height: 80,
-                              point: const LatLng(65.0217, 25.4599),
-                              child: FriendMarker(
-                                name: "Alex",
-                                onTap: () {
-                                },
-                              ),
+                            MarkerLayer(
+                              markers: [
+                                if (_userLocation != null)
+                                  Marker(
+                                    point: _userLocation!,
+                                    child: const UserMarker(),
+                                  ),
+                                Marker(
+                                  width: 100,
+                                  height: 100,
+                                  point: const LatLng(65.0215, 25.4598),
+                                  child: FestivalMarker(
+                                    title: "Main Stage",
+                                    crowdLevel: "High",
+                                    color: Colors.red,
+                                    icon: Icons.music_note,
+                                    onTap: () {
+                                      setState(() => _selectedStage = "Main Stage");
+                                      _showFoodOptions = false;
+                                    },
+                                  ),
+                                ),
+                                Marker(
+                                  width: 80,
+                                  height: 80,
+                                  point: const LatLng(65.0217, 25.4599),
+                                  child: FriendMarker(
+                                    name: "Alex",
+                                    onTap: () {},
+                                  ),
+                                ),
+                                ..._foodVendors.map((vendor) => Marker(
+                                      point: vendor.location,
+                                      width: 60,
+                                      height: 60,
+                                      child: Icon(Icons.restaurant, color: Colors.orange, size: 30),
+                                    )),
+                                // Toilet markers
+                                Marker(
+                                  point: LatLng(65.0225, 25.4585),
+                                  width: 50,
+                                  height: 50,
+                                  child: Icon(Icons.wc, color: Colors.blue, size: 28),
+                                ),
+                                Marker(
+                                  point: LatLng(65.0205, 25.4615),
+                                  width: 50,
+                                  height: 50,
+                                  child: Icon(Icons.wc, color: Colors.blue, size: 28),
+                                ),
+                              ],
                             ),
-                           ..._foodVendors.map((vendor) => Marker(
-                                point: vendor.location,
-                                width: 60,
-                                height: 60,
-                                child: Icon(Icons.restaurant, color: Colors.orange, size: 30),
-                              )),
                           ],
+                        ),
+                        // Search bar overlay
+                        Positioned(
+                          top: 16,
+                          left: 16,
+                          right: 16,
+                          child: Column(
+                            children: [
+                              Material(
+                                elevation: 6,
+                                borderRadius: BorderRadius.circular(12),
+                                child: TextField(
+                                  controller: _searchController,
+                                  decoration: InputDecoration(
+                                    hintText: "Search food, stages, toilets...",
+                                    prefixIcon: Icon(Icons.search),
+                                    filled: true,
+                                    fillColor: Colors.white.withOpacity(0.95),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(vertical: 0),
+                                  ),
+                                  onChanged: _onSearchChanged,
+                                ),
+                              ),
+                              if (_searchResults.isNotEmpty)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: _searchResults.length,
+                                    itemBuilder: (context, index) {
+                                      final result = _searchResults[index];
+                                      return ListTile(
+                                        title: Text(result.name),
+                                        subtitle: Text(result.type),
+                                        onTap: () => _onSearchSelect(result),
+                                      );
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -194,7 +292,7 @@ class _MapPageState extends State<MapPage> {
 
               const SizedBox(height: 12),
 
-              //  Quick action buttons
+              // Quick action buttons
               Row(
                 children: [
                   Expanded(

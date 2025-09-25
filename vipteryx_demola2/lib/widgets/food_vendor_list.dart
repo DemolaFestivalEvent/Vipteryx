@@ -6,10 +6,10 @@ class FoodVendorList extends StatelessWidget {
   final void Function(FoodVendor) onOrder;
 
   const FoodVendorList({
-    Key? key,
+    super.key,
     required this.vendors,
     required this.onOrder,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -6,11 +6,11 @@ class StageCard extends StatelessWidget {
   final VoidCallback onSchedule;
 
   const StageCard({
-    Key? key,
+    super.key,
     required this.stageName,
     required this.onDirections,
     required this.onSchedule,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
